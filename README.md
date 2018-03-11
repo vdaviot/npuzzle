@@ -1,2 +1,2 @@
-# npuzzle
-Npuzzle solver
+# nPuzzle
+
