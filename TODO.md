@@ -2,13 +2,28 @@
 
 Parsing: 
 
-	Ne pas parser les commentaires (#)
-	Generateur fournit
-	Generateur perso
+	Ne pas parser les commentaires (# et \**\) -> Done
+	Generateur fournit -> Parsing OK
+	Generateur perso -> Parsing OK / Generation OK-ish -> Pas de choix de solvable / unsolvable
+	Ajouter option Interactive et Benchmark
+
+Visuel:
+	
+	Plateau de jeu pygame -> Dessin de rectangle a finir
+	Boutons user (start stop resolve restart)
+	Catch les event de la fenetre
+	Animation pour chaque action
+	Mode resolution (1 action/s) avec temps et actions
+
+Erreur:
+
+	Erreur parsing (Fichier vide/Pas de params/Binaire/Dossier) -> Done ? -> A ameliorer avec classe gestion d'erreur
+	Erreur resolution
 
 Resolution:
 
-	3 Heuristiques minimum (Manhattan-distance obligatoire, les autres aux choix
+	3 Heuristiques minimum (Manhattan-distance obligatoire, les autres aux choix)
+
 
 Sortie:
 
@@ -18,8 +33,6 @@ Sortie:
 		Nombre de mouvement avant resolution
 		Ordre des states
 		Solvable ou pas
-
-Bonus:
 
 	
 
