@@ -5,11 +5,11 @@ Parsing:
 	Ne pas parser les commentaires (# et \**\) -> Done
 	Generateur fournit -> Parsing OK
 	Generateur perso -> Parsing OK / Generation OK-ish -> Pas de choix de solvable / unsolvable
-	Ajouter option Interactive et Benchmark
+	Ajouter option Benchmark -> En cours
 
 Visuel:
 	
-	Plateau de jeu pygame -> Dessin de rectangle a finir
+	Plateau de jeu pygame -> Done
 	Boutons user (start stop resolve restart)
 	Catch les event de la fenetre
 	Animation pour chaque action
