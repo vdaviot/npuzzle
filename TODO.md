@@ -5,15 +5,13 @@ Parsing:
 	Ne pas parser les commentaires (# et \**\) -> Done
 	Generateur fournit -> Parsing OK
 	Generateur perso -> Parsing OK / Generation OK-ish -> Pas de choix de solvable / unsolvable
-	Ajouter option Benchmark -> En cours
+	Ajouter option Benchmark -> Done
 
 Visuel:
 	
 	Plateau de jeu pygame -> Done
-	Boutons user (start stop resolve restart)
-	Catch les event de la fenetre
+	Catch les event de la fenetre -> Done
 	Animation pour chaque action
-	Mode resolution (1 action/s) avec temps et actions
 
 Erreur:
 
@@ -23,7 +21,8 @@ Erreur:
 Resolution:
 
 	3 Heuristiques minimum (Manhattan-distance obligatoire, les autres aux choix)
-
+	Mode resolution (1action/s) et mode benchmark avec sortie temps / nombre de move
+	Sortie mode resolution multi heuristique si demande
 
 Sortie:
 
