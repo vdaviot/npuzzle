@@ -1,6 +1,10 @@
 import pygame, random, sys, re, argparse
 from pygame.locals import *
 
+UP = 'up'
+DOWN = 'down'
+LEFT = 'left'
+RIGHT = 'right'
 
 class Game(object):
 
@@ -26,11 +30,12 @@ class Game(object):
 
 			pygame.init()
 			self.screen = pygame.display.set_mode((self.screenX, self.screenY))
-			self.font = pygame.font.SysFont('Arial', self.screenX / 10)
+			self.font = pygame.font.SysFont('Arial', self.screenX / 20)
 			self.clock = pygame.time.Clock()
 			pygame.display.set_caption('Npuzzle')
 		else: # Pas de visuel, juste resolution et affichage stat
 			self._solve(grid)
+		super(object, self)
 
 	def calcPadding(self, row, col):
 		return [self.padding + self.spaceX * col, self.padding + self.spaceY * row, self.spaceX - self.padding, self.spaceY - self.padding]
@@ -40,61 +45,68 @@ class Game(object):
 
 	def draw_grid(self, board):
 		color_f = (255, 255, 255) # Temporary 
-		color_r = (0, 0, 0) # Temporary
-		for row in range(len(board)):
-			for col in range(len(board[0])):
+		color_r = (25, 25, 25) # Temporary
+		for row in range(self.len):
+			for col in range(self.len):
 				posX, posY, sizeX, sizeY = self.calcPadding(row, col)
-				pygame.draw.rect(self.screen, color_r, (posX, posY, sizeX, sizeY))
+				if board[row][col].moving == True:
+					pygame.draw.rect(self.screen, (120, 25, 25), (posX, posY, sizeX, sizeY))
+				else:
+					pygame.draw.rect(self.screen, color_r, (posX, posY, sizeX, sizeY))
 				self.screen.blit(self.font.render(str(board[row][col].value), True, color_f), (posX, posY))
 
-	def _getMovingTile(self):
-		for line in self.grid.grid:
-			for col in line:
-				if col.moving == True:
-					print col.value
+	def _getTile(self, tile):
+		for row in self.grid.grid:
+			for col in row:
+				if col.value == tile:
 					return col.posX, col.posY
 
-	def _setMovingTile(self):
-		for line in self.grid.grid:
-			for col in line:
-				col.moving = False if col.value != 0 else True
+	def _isValidMove(self, move):
+		posX, posY = self._getTile(0)
+		if move == UP and posY - 1 >= 0:
+			return True
+		elif move == DOWN and posY + 1 < self.len:
+			return True
+		elif move == LEFT and posX - 1 >= 0:
+			return True
+		elif move == RIGHT and posX + 1 < self.len:
+			return True
+		return False
 
-	def _canMove(self, posX, posY):
-		if posX < 0 or posY < 0 or posX >= self.len or posY >= self.len and self.grid.grid[posX][posY].value != 0:
-			return False
-		return True
 
-	def _handle_key(self, key): # Probleme ici, le check de position ne fonctionne pas correctement
-	
-		posX, posY = self._getMovingTile() # Get 0 tile posX, posY
+	def _swapPiecePositions(self, first, second):
+		posX, posY = first.posX, first.posY
+		first.posX, first.posY = second.posX, second.posY
+		second.posX, second.posY = posX, posY
 
-		print(posX, posY)
+	def _handle_key(self, key):
+		posX, posY = self._getTile(0) # Get 0 tile posX, posY
 
-		if key == K_UP and self._canMove(posX - 1, posY):
-			self.grid.grid[posX][posY], self.grid.grid[posX - 1][posY] = self.grid.grid[posX - 1][posY], self.grid.grid[posX][posY]
-			# self.grid.grid[posX][posY].moving, self.grid.grid[posX - 1][posY].moving = True, False
+		if key in [K_UP, K_w] and self._isValidMove(UP):
+			self.grid.grid[posY][posX], self.grid.grid[posY - 1][posX] = self.grid.grid[posY- 1][posX], self.grid.grid[posY][posX]
+			self._swapPiecePositions(self.grid.grid[posY][posX], self.grid.grid[posY - 1][posX])
 
-		elif key == K_DOWN and self._canMove(posX + 1, posY):
-			self.grid.grid[posX][posY], self.grid.grid[posX + 1][posY] = self.grid.grid[posX + 1][posY], self.grid.grid[posX][posY]
+		elif key in [K_DOWN, K_s] and self._isValidMove(DOWN):
+			self.grid.grid[posY][posX], self.grid.grid[posY + 1][posX] = self.grid.grid[posY + 1][posX], self.grid.grid[posY][posX]
+			self._swapPiecePositions(self.grid.grid[posY][posX], self.grid.grid[posY + 1][posX])
 
-		elif key == K_LEFT and self._canMove(posX, posY - 1):
-			self.grid.grid[posX][posY], self.grid.grid[posX][posY - 1] = self.grid.grid[posX][posY - 1], self.grid.grid[posX][posY]
+		elif key in [K_LEFT, K_a] and self._isValidMove(LEFT):
+			self.grid.grid[posY][posX], self.grid.grid[posY][posX - 1] = self.grid.grid[posY][posX - 1], self.grid.grid[posY][posX]
+			self._swapPiecePositions(self.grid.grid[posY][posX], self.grid.grid[posY][posX - 1])
 
-		elif key == K_RIGHT and self._canMove(posX, posY + 1):
-			self.grid.grid[posX][posY], self.grid.grid[posX][posY + 1] = self.grid.grid[posX][posY + 1], self.grid.grid[posX][posY]
-
-		self._setMovingTile()
-		print(self.grid)
+		elif key in [K_RIGHT, K_d] and self._isValidMove(RIGHT):
+			self.grid.grid[posY][posX], self.grid.grid[posY][posX + 1] = self.grid.grid[posY][posX + 1], self.grid.grid[posY][posX]
+			self._swapPiecePositions(self.grid.grid[posY][posX], self.grid.grid[posY][posX + 1])
 
 	def _handle_mouse(self, key):
 		pass
 
 	def handle_events(self, event_list):
 		for event in event_list:
-			if event.type in [MOUSEBUTTONDOWN, KEYDOWN]:
+			if event.type in [MOUSEBUTTONDOWN, KEYUP]:
 				if event.key == K_ESCAPE:
 					self.done = True
-				elif event.key in [K_UP, K_DOWN, K_LEFT, K_RIGHT]:
+				elif event.key in [K_UP, K_w, K_DOWN, K_s, K_LEFT, K_a, K_RIGHT, K_d]:
 					self._handle_key(event.key)
 				elif event.type == MOUSEBUTTONDOWN:
 					self._handle_mouse(event.key)
@@ -112,7 +124,7 @@ class Game(object):
 			self.handle_events(pygame.event.get())
 
 			# Update display
-			self.update_display()			
+			self.update_display()		
 
 		print ("Game exited. Thanks for playing")
 		sys.exit(0)
@@ -167,16 +179,18 @@ class Board(Game):
 
 
 
-	def __init__(self, len_grid, grid=None):
-		self.grid = self._generate_npuzzle(len_grid, grid=grid)
-		print("Puzzle of size {}x{}.\n".format(self.lenX, self.lenY))
-
 	def __str__(self):
 		return '\n'.join(' '.join(str(col.value) for col in row) for row in self.grid) if self.grid else "Empty grid\n"
 
+	def __init__(self, len_grid, grid=None):
+		self.grid = self._generate_npuzzle(len_grid, grid=grid)
+		print("Puzzle of size {}x{}.\n".format(self.lenX, self.lenY))
+		print(self.__str__() + '\n')
+
+
 class Piece(Board):
 
-	def __init__(self, x, posX, posY):
+	def __init__(self, x, posY, posX):
 		self.value = abs(x)
 		self.moving = True if x == 0 else False
 		self.posX = posX
@@ -198,14 +212,13 @@ if __name__ == '__main__':
 
 	try:
 		puzzle = args.puzzle
-		iMode = args.bench
 	except AttributeError:
 		puzzle = None
 	finally:
 		size = 3 if (args.generate == 0) else args.generate
+		iMode = args.bench
 
 	grid = Board(size, puzzle)
-	print(grid)
 
 	game = Game(grid, grid.lenX, iMode)
 	game.run()
