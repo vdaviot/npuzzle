@@ -52,6 +52,9 @@ class Board(Game):
 		np = range(0, self.lenX * self.lenX)
 		return [[np.pop(0) for x in range(self.lenX)] for y in range(self.lenX)]
 
+	# def __eq__(self, other):
+	# 	return self.__dict__ == other.__dict__
+		
 	def __str__(self):
 		return '\n'.join(' '.join(str(col) for col in row) for row in self.grid) if self.grid else "Empty grid\n"
 
@@ -65,5 +68,3 @@ class Board(Game):
 		print("Puzzle of size {}x{}.\n".format(self.lenX, self.lenY))
 		print(self.__str__() + '\n')
 
-	def __eq__(self, other):
-		return self.__dict__ == other.__dict__
