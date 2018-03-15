@@ -1,7 +1,7 @@
 import pygame, random, sys, re, argparse
 from pygame.locals import *
-from src import Board
-from src import Game
+from src import *
+# from src.board import Board
 
 if __name__ == '__main__':
 	# A recup: Soit taille (-g | --generate) soit fichier (-m | --map)
