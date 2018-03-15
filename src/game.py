@@ -144,20 +144,20 @@ class Game(object):
 			openList.pop(index)
 			closedList.append(current)
 
-			for neighbour in current: # pour chaque possiblite de la position actuelle
-				if neighbour in closedList:
+			for neighbour in current.neighbours.neighbours: # pour chaque possiblite de la position actuelle
+				if neighbour.grid in closedList:
 					continue # Deja test
-				elif neighbour not in openList:
-					openList.append(neighbour)
+				elif neighbour.grid not in openList:
+					openList.append(neighbour.grid)
 
 				gTry = current.g # On recup le gscore general
-				if gTry >= neighboor.g: # Comparaison du score general au prochain, le plus petit gagne
+				if gTry >= neighbour.g: # Comparaison du score general au prochain, le plus petit gagne
 					continue
 
-				cameFrom[neighboor] = current
-				neighboor.g = gTry
+				cameFrom[neighbour] = current
+				neighbour.g = gTry
 				neighbour.f = gTry + 1
-
+			
 		return None
 
 
