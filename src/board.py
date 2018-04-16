@@ -56,7 +56,7 @@ class Board(Game): # Ok
 	# Comparison method
 	def __eq__(self, other):
 		return self.__dict__ == other.__dict__
-		
+
 	# Print method
 	def __str__(self):
 		return '\n'.join(' '.join(str(col) for col in row) for row in self.grid) if self.grid else "Empty grid\n"
@@ -65,7 +65,6 @@ class Board(Game): # Ok
 	def __init__(self, len_grid, grid=None, solved=False):
 		self.lenX, self.lenY = len_grid, len_grid
 		self.grid = self._generate_npuzzle(len_grid, grid=grid) if not solved else self._getSolved()
-		self.g, self.h, self.f = 1, 1, 1
 		
 		print("Puzzle of size {}x{}.\n".format(self.lenX, self.lenY))
 		print(self.__str__() + '\n')

@@ -1,6 +1,7 @@
 # F = sum of the cost to reach node
 # G = sum of the cost to travel from parent
 # H = heuristic
+import cython
 
 def manhattanDistance(self, start, end):# start et end sont des pairs de coords
 	sx, sy = start

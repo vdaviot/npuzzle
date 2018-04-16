@@ -12,14 +12,14 @@ class Game(object):
 
 	def __init__(self, grid, solvedGrid, len=3, interactive=True):
 		# Interactive False = Bench mode
-		self.grid = grid
+		self.grid = grid.grid
 		self.solvedGrid = solvedGrid
 		self.done = False
 		self.len = len
 		self.options = {
 			'interactive': interactive,
 			}
-		# self.neighbours = Neighbours(self.grid, self._getTile(0))
+		# selfeighbours = Neighbours(self.grid, self._getTile(0))
 		if self.options['interactive']: # Initialisation pygame
 			self.screenX, self.screenY = 800, 600
 			self.tileSize = self.screenX / self.len
@@ -60,7 +60,7 @@ class Game(object):
 
 
 	def gridAfterMove(self, move, posX, posY):
-		new_grid = [row[:] for row in self.grid.grid]
+		new_grid = [row[:] for row in self.grid]
 		if move == 'right':
 			new_grid[posY][posX], new_grid[posY][posX + 1] = new_grid[posY][posX + 1], new_grid[posY][posX]
 		elif move == 'left':
@@ -74,20 +74,20 @@ class Game(object):
 	def _handle_key(self, key):
 		 # Get 0 tile posX, posY
 		if key in [K_UP, K_w] and self._isValidMove(UP):
-			self.grid.grid[self.y][self.x], self.grid.grid[self.y - 1][self.x] = self.grid.grid[self.y - 1][self.x], self.grid.grid[self.y][self.x]
+			self.grid[self.y][self.x], self.grid[self.y - 1][self.x] = self.grid[self.y - 1][self.x], self.grid[self.y][self.x]
 
 		elif key in [K_DOWN, K_s] and self._isValidMove(DOWN):
-			self.grid.grid[self.y][self.x], self.grid.grid[self.y + 1][self.x] = self.grid.grid[self.y + 1][self.x], self.grid.grid[self.y][self.x]
+			self.grid[self.y][self.x], self.grid[self.y + 1][self.x] = self.grid[self.y + 1][self.x], self.grid[self.y][self.x]
 
 		elif key in [K_LEFT, K_a] and self._isValidMove(LEFT):
-			self.grid.grid[self.y][self.x], self.grid.grid[self.y][self.x - 1] = self.grid.grid[self.y][self.x - 1], self.grid.grid[self.y][self.x]
+			self.grid[self.y][self.x], self.grid[self.y][self.x - 1] = self.grid[self.y][self.x - 1], self.grid[self.y][self.x]
 
 		elif key in [K_RIGHT, K_d] and self._isValidMove(RIGHT):
-			self.grid.grid[self.y][self.x], self.grid.grid[self.y][self.x + 1] = self.grid.grid[self.y][self.x + 1], self.grid.grid[self.y][self.x]
-		# self.neighbours.setNodes(self.grid.grid, (posX, posY))
+			self.grid[self.y][self.x], self.grid[self.y][self.x + 1] = self.grid[self.y][self.x + 1], self.grid[self.y][self.x]
+		# selfeighbours.setNodes(self.grid, (posX, posY))
 
 	def _getTile(self, tile):
-		for idy, row in enumerate(self.grid.grid):
+		for idy, row in enumerate(self.grid):
 			for idx, col in enumerate(row):
 				if col == tile:
 					return idx, idy
@@ -112,50 +112,91 @@ class Game(object):
 		return False
 
 
-	# def getF(openList):
-	# 	index = 0
-	# 	minF = openList[0].f
-	# 	for idx, move in enumerate(openList): # A modif pour prendre ne charge les maps
-	# 		if move.f < minF:
-	# 			minF = move.f
-	# 			index = idx
-	# 	return openList[index], index
+	def getF(self, openList):
+		# for occ in openList:
+		# 	for keys, values in occ.hr.items():
+		# 		print "{}: {}".format(keys, values)
+
+		index = 0
+		print openList[0]
+		minF = min((openList[0].hr['right']['f'], openList[0].hr['left']['f'], openList[0].hr['top']['f'], openList[0].hr['bottom']['f']))
+
+		for idx, thing in enumerate(openList):
+			i = 0
+			for nb in [thing.hr['right']['f'], thing.hr['left']['f'], thing.hr['top']['f'], thing.hr['bottom']['f']]:
+				i += 1
+				if nb < minF:
+					minF = nb # a changer
+				index = idx
+
+		return openList[index], index
+
+		# for idx, move in enumerate(openList): # A modif pour prendre ne charge les maps
+		# 	if move.f < minF:
+		# 		minF = move.f
+		# 		index = idx
+		# return openList[index], index
 
 
 
-	# def astarAll(self, grid, solvedGrid):
-	# 	# Grid -> has neighboor, f, g, h
-	# 	# each neighboor has f g h too
-	# 	# self.neighbours = Neighbours(self.grid, self._getTile(0))
+	def astarAll(self, grid, solvedGrid):
+		# Grid -> has neighboor, f, g, h
+		# each neighboor has f g h too
+		# selfeighbours = Neighbours(self.grid, self._getTile(0))
 
-	# 	openList = []
-	# 	closedList = []
-	# 	cameFrom = []
-	# 	openList.append(grid)
+		openList = []
+		closedList = []
+		cameFrom = []
+		openList.append(grid)
 
-	# 	while openList:
+		while openList:
+			# print "\n\nOPEN"
+			# for thing in openList:
+			# 	print thing
+			# print "\n\nCLOSED"
+			# for thing in closedList:
+			# 	print thing
+			current, index = self.getF(openList)
+			if current.grid == solvedGrid.grid:
+				# return self.inversePath(cameFrom, current)
+				return
 
-	# 		current, index = self.getF(openList)
-	# 		if current == solvedGrid:
-	# 			return self.inversePath(cameFrom, current)
-	# 		openList.pop(index)
-	# 		closedList.append(current)
+			openList.pop(index)
+			closedList.append(current)
 
-	# 		for neighbour in current.neighbours.neighbours: # pour chaque possiblite de la position actuelle
-	# 			if neighbour.grid in closedList:
-	# 				continue # Deja test
-	# 			elif neighbour.grid not in openList:
-	# 				openList.append(neighbour.grid)
+			for neighbour in current.hr: # pour chaque possiblite de la position actuelle
+				# neighbour = nom du cote
 
-	# 			gTry = current.g # On recup le gscore general
-	# 			if gTry >= neighbour.g: # Comparaison du score general au prochain, le plus petit gagne
-	# 				continue
+				# nb = actual neighbours
+				nb = current.hr[neighbour].get('n', False)
+				for thing in closedList:
+					if thing.grid == nb:
+						continue
+				for thing in openList:
+					if thing == nb:
+						continue
+				openList.append(nb)
 
-	# 			cameFrom[neighbour] = current
-	# 			neighbour.g = gTry
-	# 			neighbour.f = gTry + 1
+					# gTry = current.g
+					# if gTry >= neighbour['g']:
+					# 	continue
+					# cameFrom[neighbour] = current
+					# neighbour['g'] = gTry
+					# neighbour['f'] = gTry + 1
+			# 	if neighbour.grid in closedList:
+			# 		continue # Deja test
+			# 	elif neighbour.grid not in openList:
+			# 		openList.append(neighbour.grid)
 
-	# 	return None
+			# 	gTry = current.g # On recup le gscore general
+			# 	if gTry >= neighbour.g: # Comparaison du score general au prochain, le plus petit gagne
+			# 		continue
+
+			# 	cameFrom[neighbour] = current
+			# 	neighbour.g = gTry
+			# 	neighbour.f = gTry + 1
+
+		return None
 
 
 	def _handle_mouse(self, key):
@@ -168,9 +209,9 @@ class Game(object):
 					self.done = True
 				elif event.key in [K_UP, K_w, K_DOWN, K_s, K_LEFT, K_a, K_RIGHT, K_d]:
 					self._handle_key(event.key)
+				elif event.key == K_SPACE:
+					self.astarAll(self.grid, self.solvedGrid)
 				self.x, self.y = self._getTile(0)
-				# elif event.key == K_SPACE:
-				# 	self.astarAll(self.grid, self.solvedGrid)
 				# elif event.type == MOUSEBUTTONDOWN:
 					# self._handle_mouse(event.key)
 			
@@ -181,9 +222,11 @@ class Game(object):
 
 	def run(self):
 		self.x, self.y = self._getTile(0)
+		self.nb = Neighbours(self.grid, (self.x, self.y))
+
 		while self.done is False:
 			# Dessin de grille
-			self.draw_grid(self.grid.grid)					
+			self.draw_grid(self.grid)					
 
 			# Actions user / resolve
 			self.handle_events(pygame.event.get())

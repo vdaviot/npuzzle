@@ -13,10 +13,21 @@ RIGHT = 'right'
 class Neighbours():
 
 	def __init__(self, grid, pos):
-		self.grid = grid
 		# hr = fgh for each neighbours
-		self.hr = list({id: "right", f: 1, g: 1, h: 1}, {id: "left", f: 1, g: 1, h: 1}, {id: "top", f: 1, g: 1, h: 1}, {id: "bottom", f: 1, g: 1, h: 1})
-		self.setNodes(pos)
+		# n = neighbours
+		self.grid = grid
+
+		self.hr = dict({'right': None, 'left': None, 'top': None, 'bottom': None})
+
+		self.hr.update({'right': {'n': self.getNeighbours('right', self.grid, pos), 'f': 1, 'g': 1, 'h': 1}})
+		self.hr.update({'left': {'n': self.getNeighbours('left', self.grid, pos), 'f': 1, 'g': 1, 'h': 1}})
+		self.hr.update({'top': {'n': self.getNeighbours('top', self.grid, pos), 'f': 1, 'g': 1, 'h': 1}})
+		self.hr.update({'bottom': {'n': self.getNeighbours('bottom', self.grid, pos), 'f': 1, 'g': 1, 'h': 1}})
+
+		# for keys, values in self.hr.items():
+		# 	print "{}: {}".format(keys, values)
+
+
 
 	def getNeighbours(self, move, grid, pos):
 		updated_grid = [row[:] for row in grid]
@@ -30,12 +41,10 @@ class Neighbours():
 			updated_grid[pos[0]][pos[1]], updated_grid[pos[0] + 1][pos[1]] = updated_grid[pos[0] + 1][pos[1]], updated_grid[pos[0]][pos[1]]
 		return updated_grid
 
-	def update(self, grid, pos):
-		self.grid = grid
-		self.setNodes(pos)
+	def updateNodes(self, pos):
+		self.hr.update({'right': {'n': self.getNeighbours('right', self.grid, pos)}})
+		self.hr.update({'left': {'n': self.getNeighbours('left', self.grid, pos)}})
+		self.hr.update({'top': {'n': self.getNeighbours('top', self.grid, pos)}})
+		self.hr.update({'bottom': {'n': self.getNeighbours('bottom', self.grid, pos)}})
 
-	# n = neighbours
-	def setNodes(self pos):
-		self.posX, posY = pos[1], pos[0]
-		self.rn, self.ln = self.getNeighbours('right', self.grid, pos), self.getNeighbours('left', self.grid, pos)
-		self.tn, self.ln = self.getNeighbours('top', self.grid, pos), self.getNeighbours('bottom', self.grid, pos)
+
