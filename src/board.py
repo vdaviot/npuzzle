@@ -1,9 +1,9 @@
 from game import Game
 import re, pygame
 
-class Board(Game):
+class Board(Game): # Ok
 
-	# Generation de puzzle si aucun fournit
+	# Parsing given puzzle
 	def _parse_npuzzle(self, grid_file):
 		new_grid = list()
 		try:
@@ -34,7 +34,7 @@ class Board(Game):
 		self.lenX, self.lenY = actual_len, actual_len
 		return [[int(x) for x in y] for y in new_grid]
 
-	# Generation de grid len_grid*len_grid
+	# Grid generation if no puzzle given
 	def _generate_npuzzle(self, len_grid, grid=None, solvable=True):
 		if grid is None:
 			self.lenX, self.lenY = len_grid, len_grid
@@ -48,23 +48,25 @@ class Board(Game):
 		return self._parse_npuzzle(grid)
 
 
+	# Return solved version of the board
 	def _getSolved(self):
 		np = range(0, self.lenX * self.lenX)
 		return [[np.pop(0) for x in range(self.lenX)] for y in range(self.lenX)]
 
-	# def __eq__(self, other):
-	# 	return self.__dict__ == other.__dict__
+	# Comparison method
+	def __eq__(self, other):
+		return self.__dict__ == other.__dict__
 		
+	# Print method
 	def __str__(self):
 		return '\n'.join(' '.join(str(col) for col in row) for row in self.grid) if self.grid else "Empty grid\n"
 
+	# Board initiatialisation
 	def __init__(self, len_grid, grid=None, solved=False):
 		self.lenX, self.lenY = len_grid, len_grid
-		if not solved:
-			self.grid = self._generate_npuzzle(len_grid, grid=grid)
-		else:
-			self.grid = self._getSolved()
+		self.grid = self._generate_npuzzle(len_grid, grid=grid) if not solved else self._getSolved()
 		self.g, self.h, self.f = 1, 1, 1
+		
 		print("Puzzle of size {}x{}.\n".format(self.lenX, self.lenY))
 		print(self.__str__() + '\n')
 

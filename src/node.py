@@ -3,44 +3,39 @@ DOWN = 'down'
 LEFT = 'left'
 RIGHT = 'right'
 
+
+# Etape
+# 1 - Creer les neighbours a l'init, leur donner un poids de 1 hgf
+# 2 - Apres chaque move, recalcul des neighbours, reatribution du hgf
+
+
+# F G H
 class Neighbours():
 
 	def __init__(self, grid, pos):
 		self.grid = grid
-		self.setNodes(self.grid, pos)
+		# hr = fgh for each neighbours
+		self.hr = list({id: "right", f: 1, g: 1, h: 1}, {id: "left", f: 1, g: 1, h: 1}, {id: "top", f: 1, g: 1, h: 1}, {id: "bottom", f: 1, g: 1, h: 1})
+		self.setNodes(pos)
 
-	def setGrid(self, grid):
-		self.grid = grid.grid
-
-	def setPos(self, pos):
-		self.posX, self.posY= pos[0], pos[1]
-
-	def setNodes(self, grid, pos):
-		self.neighbours = [Node(grid, LEFT, (pos[0] - 1, pos[1])), Node(grid, RIGHT, (pos[0] + 1, pos[1])),	Node(grid, UP, (pos[0], pos[1] - 1)), Node(grid, DOWN, (pos[0], pos[1] + 1))]
-
-		self.setPos(pos)
-		self.setGrid(grid)
-
-
-class Node():
-
-	def gridAfterMove(self, move, grid, pos):
-		print "GRID: "
-		print grid
-		new_grid = [row[:] for row in grid]
+	def getNeighbours(self, move, grid, pos):
+		updated_grid = [row[:] for row in grid]
 		if move == 'right':
-			new_grid[pos[0]][pos[1]], new_grid[pos[0]][pos[1] + 1] = new_grid[pos[0]][pos[1] + 1], new_grid[pos[0]][pos[1]]
+			updated_grid[pos[0]][pos[1]], updated_grid[pos[0]][pos[1] + 1] = updated_grid[pos[0]][pos[1] + 1], updated_grid[pos[0]][pos[1]]
 		elif move == 'left':
-			new_grid[pos[0]][pos[1]], new_grid[pos[0]][pos[1] - 1] = new_grid[pos[0]][pos[1] - 1], new_grid[pos[0]][pos[1]]
+			updated_grid[pos[0]][pos[1]], updated_grid[pos[0]][pos[1] - 1] = updated_grid[pos[0]][pos[1] - 1], updated_grid[pos[0]][pos[1]]
 		elif move == 'top':
-			new_grid[pos[0]][pos[1]], new_grid[pos[0] - 1][pos[1]] = new_grid[pos[0] - 1][pos[1]], new_grid[pos[0]][pos[1]]
+			updated_grid[pos[0]][pos[1]], updated_grid[pos[0] - 1][pos[1]] = updated_grid[pos[0] - 1][pos[1]], updated_grid[pos[0]][pos[1]]
 		elif move == 'bottom':
-			new_grid[pos[0]][pos[1]], new_grid[pos[0] + 1][pos[1]] = new_grid[pos[0] + 1][pos[1]], new_grid[pos[0]][pos[1]]
-		return new_grid
+			updated_grid[pos[0]][pos[1]], updated_grid[pos[0] + 1][pos[1]] = updated_grid[pos[0] + 1][pos[1]], updated_grid[pos[0]][pos[1]]
+		return updated_grid
 
-	# def __eq__(self, other):
-	# 	return self.__dict__ == other.__dict__
+	def update(self, grid, pos):
+		self.grid = grid
+		self.setNodes(pos)
 
-	def __init__(self, grid, move, pos):
-		self.f, self.g, self.h = 1, 1, 1
-		self.grid = self.gridAfterMove(move, grid, pos)
+	# n = neighbours
+	def setNodes(self pos):
+		self.posX, posY = pos[1], pos[0]
+		self.rn, self.ln = self.getNeighbours('right', self.grid, pos), self.getNeighbours('left', self.grid, pos)
+		self.tn, self.ln = self.getNeighbours('top', self.grid, pos), self.getNeighbours('bottom', self.grid, pos)

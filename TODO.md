@@ -20,6 +20,7 @@ Erreur:
 
 Resolution:
 
+	Implementation des neighbours -> En cours
 	3 Heuristiques minimum (Manhattan-distance obligatoire, les autres aux choix)
 	Mode resolution (1action/s) et mode benchmark avec sortie temps / nombre de move
 	Sortie mode resolution multi heuristique si demande

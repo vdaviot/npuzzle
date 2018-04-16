@@ -72,18 +72,18 @@ class Game(object):
 		return new_grid
 
 	def _handle_key(self, key):
-		posX, posY = self._getTile(0) # Get 0 tile posX, posY
+		 # Get 0 tile posX, posY
 		if key in [K_UP, K_w] and self._isValidMove(UP):
-			self.grid.grid[posY][posX], self.grid.grid[posY - 1][posX] = self.grid.grid[posY - 1][posX], self.grid.grid[posY][posX]
+			self.grid.grid[self.y][self.x], self.grid.grid[self.y - 1][self.x] = self.grid.grid[self.y - 1][self.x], self.grid.grid[self.y][self.x]
 
 		elif key in [K_DOWN, K_s] and self._isValidMove(DOWN):
-			self.grid.grid[posY][posX], self.grid.grid[posY + 1][posX] = self.grid.grid[posY + 1][posX], self.grid.grid[posY][posX]
+			self.grid.grid[self.y][self.x], self.grid.grid[self.y + 1][self.x] = self.grid.grid[self.y + 1][self.x], self.grid.grid[self.y][self.x]
 
 		elif key in [K_LEFT, K_a] and self._isValidMove(LEFT):
-			self.grid.grid[posY][posX], self.grid.grid[posY][posX - 1] = self.grid.grid[posY][posX - 1], self.grid.grid[posY][posX]
+			self.grid.grid[self.y][self.x], self.grid.grid[self.y][self.x - 1] = self.grid.grid[self.y][self.x - 1], self.grid.grid[self.y][self.x]
 
 		elif key in [K_RIGHT, K_d] and self._isValidMove(RIGHT):
-			self.grid.grid[posY][posX], self.grid.grid[posY][posX + 1] = self.grid.grid[posY][posX + 1], self.grid.grid[posY][posX]
+			self.grid.grid[self.y][self.x], self.grid.grid[self.y][self.x + 1] = self.grid.grid[self.y][self.x + 1], self.grid.grid[self.y][self.x]
 		# self.neighbours.setNodes(self.grid.grid, (posX, posY))
 
 	def _getTile(self, tile):
@@ -93,23 +93,21 @@ class Game(object):
 					return idx, idy
 
 	def _getNeighbour(self):
-		posX, posY = self._getTile(0)
 		return {
-			'right': self.gridAfterMove('right', posX, posY) if posX < self.len - 1 else None,
-			'left': self.gridAfterMove('left', posX, posY) if posX > 0 else None,
-			'top': self.gridAfterMove('top', posX, posY) if posY > 0 else None,
-			'bottom': self.gridAfterMove('bottom', posX, posY) if posY < self.len - 1 else None,
+			'right': self.gridAfterMove('right', self.x, self.y) if self.x < self.len - 1 else None,
+			'left': self.gridAfterMove('left', self.x, self.y) if self.x > 0 else None,
+			'top': self.gridAfterMove('top', self.x, self.y) if self.y > 0 else None,
+			'bottom': self.gridAfterMove('bottom', self.x, self.y) if self.y < self.len - 1 else None,
 		}
 
 	def _isValidMove(self, move):
-		posX, posY = self._getTile(0)
-		if move == UP and posY - 1 >= 0:
+		if move == UP and self.y - 1 >= 0:
 			return True
-		elif move == DOWN and posY + 1 < self.len:
+		elif move == DOWN and self.y + 1 < self.len:
 			return True
-		elif move == LEFT and posX - 1 >= 0:
+		elif move == LEFT and self.x - 1 >= 0:
 			return True
-		elif move == RIGHT and posX + 1 < self.len:
+		elif move == RIGHT and self.x + 1 < self.len:
 			return True
 		return False
 
@@ -170,10 +168,11 @@ class Game(object):
 					self.done = True
 				elif event.key in [K_UP, K_w, K_DOWN, K_s, K_LEFT, K_a, K_RIGHT, K_d]:
 					self._handle_key(event.key)
+				self.x, self.y = self._getTile(0)
 				# elif event.key == K_SPACE:
 				# 	self.astarAll(self.grid, self.solvedGrid)
 				# elif event.type == MOUSEBUTTONDOWN:
-					self._handle_mouse(event.key)
+					# self._handle_mouse(event.key)
 			
 	def update_display(self):
 		pygame.display.update()
@@ -181,6 +180,7 @@ class Game(object):
 
 
 	def run(self):
+		self.x, self.y = self._getTile(0)
 		while self.done is False:
 			# Dessin de grille
 			self.draw_grid(self.grid.grid)					
