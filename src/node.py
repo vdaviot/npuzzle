@@ -12,39 +12,42 @@ RIGHT = 'right'
 # F G H
 class Neighbours():
 
-	def __init__(self, grid, pos):
+	def __init__(self, grid, pos, len):
 		# hr = fgh for each neighbours
 		# n = neighbours
+		self.len = len
 		self.grid = grid
 
-		self.hr = dict({'right': None, 'left': None, 'top': None, 'bottom': None})
-
-		self.hr.update({'right': {'n': self.getNeighbours('right', self.grid, pos), 'f': 1, 'g': 1, 'h': 1}})
+		self.hr = dict({'right': {'n': self.getNeighbours('right', self.grid, pos), 'f': 1, 'g': 1, 'h': 1}})
 		self.hr.update({'left': {'n': self.getNeighbours('left', self.grid, pos), 'f': 1, 'g': 1, 'h': 1}})
 		self.hr.update({'top': {'n': self.getNeighbours('top', self.grid, pos), 'f': 1, 'g': 1, 'h': 1}})
 		self.hr.update({'bottom': {'n': self.getNeighbours('bottom', self.grid, pos), 'f': 1, 'g': 1, 'h': 1}})
 
-		# for keys, values in self.hr.items():
-		# 	print "{}: {}".format(keys, values)
-
-
 
 	def getNeighbours(self, move, grid, pos):
 		updated_grid = [row[:] for row in grid]
-		if move == 'right':
+		# pos[0] = x pos[1] = y
+		if move == 'right' and pos[0] + 1 < self.len:
 			updated_grid[pos[0]][pos[1]], updated_grid[pos[0]][pos[1] + 1] = updated_grid[pos[0]][pos[1] + 1], updated_grid[pos[0]][pos[1]]
-		elif move == 'left':
+		elif move == 'left' and pos[0] - 1 >= 0:
 			updated_grid[pos[0]][pos[1]], updated_grid[pos[0]][pos[1] - 1] = updated_grid[pos[0]][pos[1] - 1], updated_grid[pos[0]][pos[1]]
-		elif move == 'top':
+		elif move == 'top' and pos[1] - 1 >= 0:
 			updated_grid[pos[0]][pos[1]], updated_grid[pos[0] - 1][pos[1]] = updated_grid[pos[0] - 1][pos[1]], updated_grid[pos[0]][pos[1]]
-		elif move == 'bottom':
+		elif move == 'bottom' and pos[1] + 1 < self.len:
 			updated_grid[pos[0]][pos[1]], updated_grid[pos[0] + 1][pos[1]] = updated_grid[pos[0] + 1][pos[1]], updated_grid[pos[0]][pos[1]]
 		return updated_grid
 
-	def updateNodes(self, pos):
-		self.hr.update({'right': {'n': self.getNeighbours('right', self.grid, pos)}})
-		self.hr.update({'left': {'n': self.getNeighbours('left', self.grid, pos)}})
-		self.hr.update({'top': {'n': self.getNeighbours('top', self.grid, pos)}})
-		self.hr.update({'bottom': {'n': self.getNeighbours('bottom', self.grid, pos)}})
+	def updateNodes(self, grid, pos):
+		self.grid = grid
+
+		print
+		for direction in ['right', 'left', 'top', 'bottom']:
+			try:
+				self.hr.update({direction: {'n': self.getNeighbours(direction, self.grid, pos)}})
+			except:
+				self.hr.update({direction: {'n': None}})
+			finally:
+				print self.hr[direction]['n']
+		print
 
 

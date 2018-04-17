@@ -62,9 +62,10 @@ class Board(Game): # Ok
 		return '\n'.join(' '.join(str(col) for col in row) for row in self.grid) if self.grid else "Empty grid\n"
 
 	# Board initiatialisation
-	def __init__(self, len_grid, grid=None, solved=False):
+	def __init__(self, len_grid, grid, solved=False):
 		self.lenX, self.lenY = len_grid, len_grid
 		self.grid = self._generate_npuzzle(len_grid, grid=grid) if not solved else self._getSolved()
+		self.f, self.g, self.h = 1, 1, 1
 		
 		print("Puzzle of size {}x{}.\n".format(self.lenX, self.lenY))
 		print(self.__str__() + '\n')

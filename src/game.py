@@ -12,14 +12,13 @@ class Game(object):
 
 	def __init__(self, grid, solvedGrid, len=3, interactive=True):
 		# Interactive False = Bench mode
-		self.grid = grid.grid
+		self.grid = grid
 		self.solvedGrid = solvedGrid
 		self.done = False
 		self.len = len
 		self.options = {
 			'interactive': interactive,
 			}
-		# selfeighbours = Neighbours(self.grid, self._getTile(0))
 		if self.options['interactive']: # Initialisation pygame
 			self.screenX, self.screenY = 800, 600
 			self.tileSize = self.screenX / self.len
@@ -36,6 +35,9 @@ class Game(object):
 			pygame.display.set_caption('Npuzzle')
 		else: # Pas de visuel, juste resolution et affichage stat
 			self._solve(grid)
+
+		self.x, self.y = self._getTile(0)
+		self.nb = Neighbours(self.grid.grid, (self.x, self.y), self.len)
 
 
 	def calcPadding(self, row, col):
@@ -74,53 +76,36 @@ class Game(object):
 	def _handle_key(self, key):
 		 # Get 0 tile posX, posY
 		if key in [K_UP, K_w] and self._isValidMove(UP):
-			self.grid[self.y][self.x], self.grid[self.y - 1][self.x] = self.grid[self.y - 1][self.x], self.grid[self.y][self.x]
+			self.grid.grid[self.y][self.x], self.grid.grid[self.y - 1][self.x] = self.grid.grid[self.y - 1][self.x], self.grid.grid[self.y][self.x]
 
 		elif key in [K_DOWN, K_s] and self._isValidMove(DOWN):
-			self.grid[self.y][self.x], self.grid[self.y + 1][self.x] = self.grid[self.y + 1][self.x], self.grid[self.y][self.x]
+			self.grid.grid[self.y][self.x], self.grid.grid[self.y + 1][self.x] = self.grid.grid[self.y + 1][self.x], self.grid.grid[self.y][self.x]
 
 		elif key in [K_LEFT, K_a] and self._isValidMove(LEFT):
-			self.grid[self.y][self.x], self.grid[self.y][self.x - 1] = self.grid[self.y][self.x - 1], self.grid[self.y][self.x]
+			self.grid.grid[self.y][self.x], self.grid.grid[self.y][self.x - 1] = self.grid.grid[self.y][self.x - 1], self.grid.grid[self.y][self.x]
 
 		elif key in [K_RIGHT, K_d] and self._isValidMove(RIGHT):
-			self.grid[self.y][self.x], self.grid[self.y][self.x + 1] = self.grid[self.y][self.x + 1], self.grid[self.y][self.x]
-		# selfeighbours.setNodes(self.grid, (posX, posY))
+			self.grid.grid[self.y][self.x], self.grid.grid[self.y][self.x + 1] = self.grid.grid[self.y][self.x + 1], self.grid.grid[self.y][self.x]
 
 	def _getTile(self, tile):
-		for idy, row in enumerate(self.grid):
+		for idy, row in enumerate(self.grid.grid):
 			for idx, col in enumerate(row):
 				if col == tile:
 					return idx, idy
 
-	def _getNeighbour(self):
-		return {
-			'right': self.gridAfterMove('right', self.x, self.y) if self.x < self.len - 1 else None,
-			'left': self.gridAfterMove('left', self.x, self.y) if self.x > 0 else None,
-			'top': self.gridAfterMove('top', self.x, self.y) if self.y > 0 else None,
-			'bottom': self.gridAfterMove('bottom', self.x, self.y) if self.y < self.len - 1 else None,
-		}
-
 	def _isValidMove(self, move):
-		if move == UP and self.y - 1 >= 0:
-			return True
-		elif move == DOWN and self.y + 1 < self.len:
-			return True
-		elif move == LEFT and self.x - 1 >= 0:
-			return True
-		elif move == RIGHT and self.x + 1 < self.len:
+		if  move == UP and self.y - 1 >= 0 or \
+		 	move == DOWN and self.y + 1 < self.len or \
+		 	move == LEFT and self.x - 1 >= 0 or \
+		 	move == RIGHT and self.x + 1 < self.len:
 			return True
 		return False
 
 
 	def getF(self, openList):
-		# for occ in openList:
-		# 	for keys, values in occ.hr.items():
-		# 		print "{}: {}".format(keys, values)
-
 		index = 0
-		print openList[0]
-		minF = min((openList[0].hr['right']['f'], openList[0].hr['left']['f'], openList[0].hr['top']['f'], openList[0].hr['bottom']['f']))
-
+		# minF = min((openList[0].hr['right']['f'], openList[0].hr['left']['f'], openList[0].hr['top']['f'], openList[0].hr['bottom']['f']))
+		minF = 1
 		for idx, thing in enumerate(openList):
 			i = 0
 			for nb in [thing.hr['right']['f'], thing.hr['left']['f'], thing.hr['top']['f'], thing.hr['bottom']['f']]:
@@ -212,21 +197,17 @@ class Game(object):
 				elif event.key == K_SPACE:
 					self.astarAll(self.grid, self.solvedGrid)
 				self.x, self.y = self._getTile(0)
-				# elif event.type == MOUSEBUTTONDOWN:
-					# self._handle_mouse(event.key)
+				self.nb.updateNodes(self.grid.grid, (self.x, self.y))
+
 			
 	def update_display(self):
 		pygame.display.update()
-		self.clock.tick(60)
-
+		self.clock.tick(120)
 
 	def run(self):
-		self.x, self.y = self._getTile(0)
-		self.nb = Neighbours(self.grid, (self.x, self.y))
-
 		while self.done is False:
 			# Dessin de grille
-			self.draw_grid(self.grid)					
+			self.draw_grid(self.grid.grid)					
 
 			# Actions user / resolve
 			self.handle_events(pygame.event.get())
