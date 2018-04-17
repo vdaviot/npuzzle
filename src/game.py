@@ -3,6 +3,7 @@ import pygame, sys, random
 from pygame.locals import *
 from node import Neighbours
 
+DIRECTION = ['right', 'left', 'top', 'bottom']
 UP = 'up'
 DOWN = 'down'
 LEFT = 'left'
@@ -35,9 +36,10 @@ class Game(object):
 			pygame.display.set_caption('Npuzzle')
 		else: # Pas de visuel, juste resolution et affichage stat
 			self._solve(grid)
-
 		self.x, self.y = self._getTile(0)
 		self.nb = Neighbours(self.grid.grid, (self.x, self.y), self.len)
+		self.snb = Neighbours(self.solvedGrid.grid, (0, 0), self.len)
+
 
 
 	def calcPadding(self, row, col):
@@ -102,19 +104,30 @@ class Game(object):
 		return False
 
 
-	def getF(self, openList):
-		index = 0
-		# minF = min((openList[0].hr['right']['f'], openList[0].hr['left']['f'], openList[0].hr['top']['f'], openList[0].hr['bottom']['f']))
-		minF = 1
-		for idx, thing in enumerate(openList):
-			i = 0
-			for nb in [thing.hr['right']['f'], thing.hr['left']['f'], thing.hr['top']['f'], thing.hr['bottom']['f']]:
-				i += 1
-				if nb < minF:
-					minF = nb # a changer
-				index = idx
 
-		return openList[index], index
+	def getF(self, openList):
+		m = []
+		
+		for side in DIRECTION:
+			m.append(openList[0].hr[side]['f'])
+		minF = min(m)
+
+		index = 0
+		for idx, possiblity in enumerate(openList):
+			iSide = 0
+			for side in DIRECTION:
+				iSide += 1
+				if possiblity.hr[side]['f'] < minF:
+					minF = possiblity.hr[side]['f']
+				index = idx
+		return openList[index], index, iSide - 1
+			# for nb in [thing.hr['right']['f'], thing.hr['left']['f'], thing.hr['top']['f'], thing.hr['bottom']['f']]:
+		# 		i += 1
+		# 		if nb < minF:
+		# 			minF = nb # a changer
+		# 		index = idx
+
+		# return openList[index], index
 
 		# for idx, move in enumerate(openList): # A modif pour prendre ne charge les maps
 		# 	if move.f < minF:
@@ -125,9 +138,9 @@ class Game(object):
 
 
 	def astarAll(self, grid, solvedGrid):
-		# Grid -> has neighboor, f, g, h
-		# each neighboor has f g h too
-		# selfeighbours = Neighbours(self.grid, self._getTile(0))
+		# grid = gameObject
+		# grid.grid = boardObject
+		# grid.nb = neighbourObject
 
 		openList = []
 		closedList = []
@@ -141,26 +154,22 @@ class Game(object):
 			# print "\n\nCLOSED"
 			# for thing in closedList:
 			# 	print thing
-			current, index = self.getF(openList)
-			if current.grid == solvedGrid.grid:
+			current, index, moveNum = self.getF(openList)
+			# if current.grid == solvedGrid.grid:
 				# return self.inversePath(cameFrom, current)
-				return
 
 			openList.pop(index)
 			closedList.append(current)
 
-			for neighbour in current.hr: # pour chaque possiblite de la position actuelle
-				# neighbour = nom du cote
-
-				# nb = actual neighbours
-				nb = current.hr[neighbour].get('n', False)
-				for thing in closedList:
-					if thing.grid == nb:
-						continue
-				for thing in openList:
-					if thing == nb:
-						continue
-				openList.append(nb)
+			# for side in DIRECTION:
+			nb = current.hr[DIRECTION[moveNum]]['n']
+			for thing in closedList:
+				if thing.grid == nb:
+					continue
+			for thing in openList:
+				if thing.grid == nb:
+					pass
+			openList.append(nb)
 
 					# gTry = current.g
 					# if gTry >= neighbour['g']:
@@ -183,10 +192,6 @@ class Game(object):
 
 		return None
 
-
-	def _handle_mouse(self, key):
-		pass
-
 	def handle_events(self, event_list):
 		for event in event_list:
 			if event.type in [MOUSEBUTTONDOWN, KEYUP]:
@@ -195,14 +200,14 @@ class Game(object):
 				elif event.key in [K_UP, K_w, K_DOWN, K_s, K_LEFT, K_a, K_RIGHT, K_d]:
 					self._handle_key(event.key)
 				elif event.key == K_SPACE:
-					self.astarAll(self.grid, self.solvedGrid)
+					self.astarAll(self.nb, self.snb)
 				self.x, self.y = self._getTile(0)
 				self.nb.updateNodes(self.grid.grid, (self.x, self.y))
 
 			
 	def update_display(self):
 		pygame.display.update()
-		self.clock.tick(120)
+		self.clock.tick(60)
 
 	def run(self):
 		while self.done is False:
@@ -215,5 +220,5 @@ class Game(object):
 			# Update display
 			self.update_display()		
 
-		print ("Game exited. Thanks for playing")
+		print("Game exited. Thanks for playing")
 		sys.exit(0)
