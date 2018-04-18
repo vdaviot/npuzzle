@@ -89,106 +89,114 @@ class Game(object):
 		elif key in [K_RIGHT, K_d] and self._isValidMove(RIGHT):
 			self.grid.grid[self.y][self.x], self.grid.grid[self.y][self.x + 1] = self.grid.grid[self.y][self.x + 1], self.grid.grid[self.y][self.x]
 
-	def _getTile(self, tile):
-		for idy, row in enumerate(self.grid.grid):
+	def _getTile(self, tile, grid=None):
+		for idy, row in enumerate(self.grid.grid if grid == None else grid):
 			for idx, col in enumerate(row):
 				if col == tile:
 					return idx, idy
 
+
 	def _isValidMove(self, move):
 		if  move == UP and self.y - 1 >= 0 or \
-		 	move == DOWN and self.y + 1 < self.len or \
-		 	move == LEFT and self.x - 1 >= 0 or \
-		 	move == RIGHT and self.x + 1 < self.len:
+			move == DOWN and self.y + 1 < self.len or \
+			move == LEFT and self.x - 1 >= 0 or \
+			move == RIGHT and self.x + 1 < self.len:
 			return True
 		return False
 
 
+	# use with len > 2
+	def manhattanDistance(self, gridFrom, gridTo):
+		xA, yA = self._getTile(0, gridFrom)
+		xB, yB = self._getTile(0, gridTo)
+		return abs(xB - xA) + abs(yB - yA)
 
-	def getF(self, openList):
-		m = []
-		
-		for side in DIRECTION:
-			m.append(openList[0].hr[side]['f'])
-		minF = min(m)
+	# Use with len 1 or 2
+	def uniformCost(self):
+		return 0
 
+	def stringify(self, grid):
+		return ''.join(' '.join(str(col) for col in row) for row in grid)
+
+	def getF(self, openList, fScore):
 		index = 0
-		for idx, possiblity in enumerate(openList):
-			iSide = 0
-			for side in DIRECTION:
-				iSide += 1
-				if possiblity.hr[side]['f'] < minF:
-					minF = possiblity.hr[side]['f']
+		minF = fScore[openList[0].__str__]
+		for idx, option in enumerate(openList):
+			try:
+				if fScore[option.__str__] < minF:
+					minF = fScore[option.__str__]
 				index = idx
-		return openList[index], index, iSide - 1
-			# for nb in [thing.hr['right']['f'], thing.hr['left']['f'], thing.hr['top']['f'], thing.hr['bottom']['f']]:
-		# 		i += 1
-		# 		if nb < minF:
-		# 			minF = nb # a changer
-		# 		index = idx
-
-		# return openList[index], index
-
-		# for idx, move in enumerate(openList): # A modif pour prendre ne charge les maps
-		# 	if move.f < minF:
-		# 		minF = move.f
-		# 		index = idx
-		# return openList[index], index
-
+			except:
+				pass
+		return openList[index], index
 
 
 	def astarAll(self, grid, solvedGrid):
-		# grid = gameObject
-		# grid.grid = boardObject
-		# grid.nb = neighbourObject
+		# grid = Instance de neighbours
+
+		# case de dict -> stringify
 
 		openList = []
 		closedList = []
 		cameFrom = []
+		gScore = {}
+		fScore = {}
+
+		gScore[grid.__str__] = 0
+		fScore[grid.__str__] = self.manhattanDistance(grid.grid, solvedGrid.grid)
+
 		openList.append(grid)
-
+		print "APPENDED {}".format(grid.__class__)
 		while openList:
-			# print "\n\nOPEN"
-			# for thing in openList:
-			# 	print thing
-			# print "\n\nCLOSED"
-			# for thing in closedList:
-			# 	print thing
-			current, index, moveNum = self.getF(openList)
-			# if current.grid == solvedGrid.grid:
-				# return self.inversePath(cameFrom, current)
+			# Get lowest f value
+			current, index = self.getF(openList, fScore)
 
+			# If the grid is in resolved state
+			if current.grid == solvedGrid.grid:
+				return self.inversePath(cameFrom, current)
+
+			# Pop the lowest f, added to tried options
 			openList.pop(index)
 			closedList.append(current)
 
-			# for side in DIRECTION:
-			nb = current.hr[DIRECTION[moveNum]]['n']
-			for thing in closedList:
-				if thing.grid == nb:
+			for direction in DIRECTION:
+				nb = current.hr[direction]['n']
+				# If already tested, jump
+				if nb in closedList:
 					continue
-			for thing in openList:
-				if thing.grid == nb:
-					pass
-			openList.append(nb)
 
-					# gTry = current.g
-					# if gTry >= neighbour['g']:
-					# 	continue
-					# cameFrom[neighbour] = current
-					# neighbour['g'] = gTry
-					# neighbour['f'] = gTry + 1
-			# 	if neighbour.grid in closedList:
-			# 		continue # Deja test
-			# 	elif neighbour.grid not in openList:
-			# 		openList.append(neighbour.grid)
+				# If not tested, append
+				if nb not in openList:
+					n = Neighbours(nb, self._getTile(0, nb), self.len)
+					openList.append(n)
+					print "APPENDED {}".format(n.__class__)
 
-			# 	gTry = current.g # On recup le gscore general
-			# 	if gTry >= neighbour.g: # Comparaison du score general au prochain, le plus petit gagne
-			# 		continue
+				tryGscore = int(gScore[current.__str__] + self.manhattanDistance(current.grid, nb))
+				strNb = self.stringify(nb)
 
-			# 	cameFrom[neighbour] = current
-			# 	neighbour.g = gTry
-			# 	neighbour.f = gTry + 1
+				if tryGscore >= self.manhattanDistance(nb, solvedGrid.grid):
+					continue # Not the best path
+
+				# Best path found
+				gScore[strNb] = int(tryGscore)
+				fScore[strNb] = gScore[strNb] + self.manhattanDistance(nb, solvedGrid.grid)
+
+				print "openList:\n"
+				for thing in enumerate(openList):
+					print "{}".format(thing.__class__)
+				print
+				print "closedList:\n"
+				for thing in enumerate(openList):
+					print "{}".format(thing.__class__)
+				print
+				print "gScore:\n"
+				for key, thing in gScore.items():
+					print "({}) [{}]->{}".format(thing.__class__, key, thing)
+				print
+				print "fScore:\n"
+				for key, thing in fScore.items():
+					print "({}) [{}]->{}".format(thing.__class__, key, thing)
+				print
 
 		return None
 

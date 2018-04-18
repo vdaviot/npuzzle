@@ -58,8 +58,8 @@ class Board(Game): # Ok
 		return self.__dict__ == other.__dict__
 
 	# Print method
-	def __str__(self):
-		return '\n'.join(' '.join(str(col) for col in row) for row in self.grid) if self.grid else "Empty grid\n"
+	# def __str__(self):
+	# 	return '\n'.join(' '.join(str(col) for col in row) for row in self.grid) if self.grid else "Empty grid\n"
 
 	# Board initiatialisation
 	def __init__(self, len_grid, grid, solved=False):
